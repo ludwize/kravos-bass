@@ -1,0 +1,34 @@
+UI hierchary dumped to: /sdcard/ui.xml
+/sdcard/ui.xml: 1 file pulled, 0 skipped. 0.4 MB/s (18238 bytes in 0.043s)
+UI hierchary dumped to: /sdcard/ui.xml
+/sdcard/ui.xml: 1 file pulled, 0 skipped. 0.4 MB/s (18620 bytes in 0.042s)
+UI hierchary dumped to: /sdcard/ui.xml
+/sdcard/ui.xml: 1 file pulled, 0 skipped. 0.4 MB/s (18620 bytes in 0.043s)
+UI hierchary dumped to: /sdcard/ui.xml
+/sdcard/ui.xml: 1 file pulled, 0 skipped. 0.4 MB/s (18144 bytes in 0.043s)
+UI hierchary dumped to: /sdcard/ui.xml
+/sdcard/ui.xml: 1 file pulled, 0 skipped. 0.3 MB/s (11855 bytes in 0.041s)
+UI hierchary dumped to: /sdcard/ui.xml
+/sdcard/ui.xml: 1 file pulled, 0 skipped. 19.6 MB/s (11855 bytes in 0.001s)
+UI hierchary dumped to: /sdcard/ui.xml
+/sdcard/ui.xml: 1 file pulled, 0 skipped. 21.1 MB/s (11855 bytes in 0.001s)
+UI hierchary dumped to: /sdcard/ui.xml
+/sdcard/ui.xml: 1 file pulled, 0 skipped. 9.6 MB/s (11855 bytes in 0.001s)
+UI hierchary dumped to: /sdcard/ui.xml
+/sdcard/ui.xml: 1 file pulled, 0 skipped. 22.6 MB/s (11855 bytes in 0.001s)
+UI hierchary dumped to: /sdcard/ui.xml
+/sdcard/ui.xml: 1 file pulled, 0 skipped. 22.0 MB/s (11855 bytes in 0.001s)
+UI hierchary dumped to: /sdcard/ui.xml
+/sdcard/ui.xml: 1 file pulled, 0 skipped. 18.8 MB/s (11855 bytes in 0.001s)
+UI hierchary dumped to: /sdcard/ui.xml
+/sdcard/ui.xml: 1 file pulled, 0 skipped. 24.2 MB/s (18152 bytes in 0.001s)
+UI hierchary dumped to: /sdcard/ui.xml
+/sdcard/ui.xml: 1 file pulled, 0 skipped. 20.7 MB/s (18152 bytes in 0.001s)
+UI hierchary dumped to: /sdcard/ui.xml
+/sdcard/ui.xml: 1 file pulled, 0 skipped. 30.3 MB/s (18144 bytes in 0.001s)
+UI hierchary dumped to: /sdcard/ui.xml
+/sdcard/ui.xml: 1 file pulled, 0 skipped. 27.0 MB/s (18144 bytes in 0.001s)
+UI hierchary dumped to: /sdcard/ui.xml
+/sdcard/ui.xml: 1 file pulled, 0 skipped. 32.7 MB/s (18144 bytes in 0.001s)
+UI hierchary dumped to: /sdcard/ui.xml
+/sdcard/ui.xml: 1 file pulled, 0 skipped. 29.9 MB/s (18144 bytes in 0.001s)
