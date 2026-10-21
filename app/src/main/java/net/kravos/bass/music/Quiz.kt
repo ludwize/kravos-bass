@@ -123,6 +123,7 @@ object QuizGen {
             f == 0 -> "Prazna žica."
             f == 12 -> "12. prag je oktava prazne žice."
             f > 12 -> "Prag $f = prag ${f - 12} oktavu više."
+            f in listOf(3, 9) -> "Orijentir: tačka na ${f}. pragu."
             f == 5 || f == 7 -> "Orijentir: ${f}. prag = nota prazne žice iznad${if (f == 7) " (oktava niže)" else ""}."
             else -> {
                 val nearest = listOf(0, 3, 5, 7, 9, 12).minBy { kotlin.math.abs(it - f) }
@@ -178,7 +179,7 @@ object QuizGen {
             val tname = (root + iv).name(c.n)
             return Question(
                 QuizKind.INTERVAL_TAP,
-                "Koren je ${root.name(c.n)}. Tapni ${iv.long} (${iv.short}) iznad njega.",
+                "Koren je ${root.name(c.n)}. Tapni ${iv.longAcc} (${iv.short}) iznad njega.",
                 listOf(BoardMarker(p.first, p.second, "R", Role.ROOT)),
                 Answer.Tap({ s, f -> Bass.midi(s, f) == target }, sol.map { BoardMarker(it.first, it.second, iv.short, iv.role, MarkerStyle.TARGET) }),
                 "${iv.short} od ${root.name(c.n)} je $tname — ${iv.semis} polustepen(a). ${shapeHint(iv)}",
@@ -282,7 +283,7 @@ object QuizGen {
                 Role.THIRD -> "tercu"
                 Role.FIFTH -> "kvintu"
                 Role.SEVENTH -> "septimu"
-                else -> iv.long
+                else -> iv.longAcc
             }
             val sol = allPositions(c) { s, f -> Bass.pc(s, f) == note.pc && kotlin.math.abs(f - rp.second) <= 4 && Bass.midi(s, f) > midiAt(rp) }
             if (sol.isEmpty()) continue

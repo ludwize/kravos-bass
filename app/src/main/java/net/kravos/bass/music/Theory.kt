@@ -91,22 +91,22 @@ fun pcSharp(pc: Int): Spelled = when (mod12(pc)) {
 
 val NATURAL_PCS = setOf(0, 2, 4, 5, 7, 9, 11)
 
-enum class Interval(val semis: Int, val steps: Int, val short: String, val long: String) {
-    R(0, 0, "R", "prima (koren)"),
-    m2(1, 1, "b2", "mala sekunda"),
-    M2(2, 1, "2", "velika sekunda"),
-    m3(3, 2, "b3", "mala terca"),
-    M3(4, 2, "3", "velika terca"),
-    P4(5, 3, "4", "čista kvarta"),
-    TT(6, 4, "b5", "smanjena kvinta (tritonus)"),
-    P5(7, 4, "5", "čista kvinta"),
-    A5(8, 4, "#5", "povećana kvinta"),
-    m6(8, 5, "b6", "mala seksta"),
-    M6(9, 5, "6", "velika seksta"),
-    d7(9, 6, "bb7", "smanjena septima"),
-    m7(10, 6, "b7", "mala septima"),
-    M7(11, 6, "7", "velika septima"),
-    P8(12, 7, "8", "oktava");
+enum class Interval(val semis: Int, val steps: Int, val short: String, val long: String, val longAcc: String) {
+    R(0, 0, "R", "prima (koren)", "primu (koren)"),
+    m2(1, 1, "b2", "mala sekunda", "malu sekundu"),
+    M2(2, 1, "2", "velika sekunda", "veliku sekundu"),
+    m3(3, 2, "b3", "mala terca", "malu tercu"),
+    M3(4, 2, "3", "velika terca", "veliku tercu"),
+    P4(5, 3, "4", "čista kvarta", "čistu kvartu"),
+    TT(6, 4, "b5", "smanjena kvinta (tritonus)", "smanjenu kvintu (tritonus)"),
+    P5(7, 4, "5", "čista kvinta", "čistu kvintu"),
+    A5(8, 4, "#5", "povećana kvinta", "povećanu kvintu"),
+    m6(8, 5, "b6", "mala seksta", "malu sekstu"),
+    M6(9, 5, "6", "velika seksta", "veliku sekstu"),
+    d7(9, 6, "bb7", "smanjena septima", "smanjenu septimu"),
+    m7(10, 6, "b7", "mala septima", "malu septimu"),
+    M7(11, 6, "7", "velika septima", "veliku septimu"),
+    P8(12, 7, "8", "oktava", "oktavu");
 
     /** Role used for colouring on the fretboard. */
     val role: Role

@@ -34,7 +34,7 @@ object Boards {
             // label relative to the chord root, so you see e.g. "2", "4", "6" passing tones
             val semis = mod12(sp.pc - ch.root.pc)
             val iv = Interval.entries.firstOrNull { it.semis == semis && it != Interval.A5 && it != Interval.d7 } ?: Interval.R
-            BoardMarker(s, f, if (labelNotes) sp.name(n) else iv.short, Role.OTHER, MarkerStyle.SOFT)
+            BoardMarker(s, f, if (labelNotes) sp.name(n) else if (semis == 6) "#4" else iv.short, Role.OTHER, MarkerStyle.SOFT)
         }
         return soft + strong
     }
