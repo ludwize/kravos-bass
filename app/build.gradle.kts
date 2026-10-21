@@ -8,6 +8,7 @@ plugins {
 val keystorePath: String? = System.getenv("KP_KEYSTORE_FILE")
 val keystorePassword: String? = System.getenv("KP_KEYSTORE_PASSWORD")
 val buildNumber: Int = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1
+val repoSlug: String = System.getenv("GITHUB_REPOSITORY") ?: "ludwize/kravos-bass"
 
 android {
     namespace = "net.kravos.bass"
@@ -19,6 +20,8 @@ android {
         targetSdk = 35
         versionCode = buildNumber
         versionName = "1.0.$buildNumber"
+        buildConfigField("String", "GITHUB_REPO", "\"$repoSlug\"")
+        buildConfigField("int", "BUILD_NUMBER", "$buildNumber")
     }
 
     signingConfigs {
@@ -77,6 +80,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     testImplementation("junit:junit:4.13.2")
 }

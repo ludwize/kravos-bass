@@ -1,6 +1,5 @@
 package net.kravos.bass.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
@@ -36,6 +35,7 @@ private val Dark = darkColorScheme(
     outlineVariant = Color(0xFF3A3C40),
 )
 
+@Suppress("unused")
 private val Light = lightColorScheme(
     primary = Color(0xFF8A5300),
     onPrimary = Color.White,
@@ -79,5 +79,5 @@ object RoleColors {
 
 @Composable
 fun BassTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = if (isSystemInDarkTheme()) Dark else Light, typography = Type, content = content)
+    MaterialTheme(colorScheme = Dark, typography = Type, content = content)
 }

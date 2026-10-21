@@ -42,6 +42,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import net.kravos.bass.audio.AudioEngine
+import net.kravos.bass.BuildConfig
+import net.kravos.bass.update.Release
+import net.kravos.bass.update.Updater
+import kotlinx.coroutines.launch
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.statusBarsPadding
 import net.kravos.bass.data.Prefs
 import net.kravos.bass.data.Settings
 import net.kravos.bass.music.Lesson
@@ -62,6 +70,13 @@ import net.kravos.bass.ui.screens.PracticeRequest
 import net.kravos.bass.ui.screens.PracticeScreen
 import net.kravos.bass.ui.screens.QuizScreen
 import net.kravos.bass.ui.theme.BassTheme
+
+private class UpdateUi {
+    var release by mutableStateOf<Release?>(null)
+    var progress by mutableStateOf<Float?>(null)
+    var msg by mutableStateOf<String?>(null)
+    var bannerHidden by mutableStateOf(false)
+}
 
 private data class Tab(val title: String, val icon: ImageVector)
 
@@ -118,6 +133,23 @@ private fun App(prefs: Prefs, settings: Settings, openRequest: androidx.compose.
     var tab by rememberSaveable { mutableIntStateOf(0) }
     var stack by remember { mutableStateOf(listOf<Overlay>()) }
     var showSettings by remember { mutableStateOf(false) }
+    val upd = remember { UpdateUi() }
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    androidx.compose.runtime.LaunchedEffect(Unit) { upd.release = Updater.latest() }
+    fun install() {
+        val rel = upd.release ?: return
+        scope.launch {
+            try {
+                upd.progress = 0f
+                val f = Updater.download(ctx, rel) { upd.progress = it }
+                upd.progress = null
+                if (!Updater.install(ctx, f)) upd.msg = "Dozvoli instalaciju iz ove aplikacije, pa ponovo pritisni Instaliraj."
+            } catch (e: Exception) {
+                upd.progress = null; upd.msg = "Greška: ${e.message}"
+            }
+        }
+    }
 
     fun push(o: Overlay) { stack = stack + o }
     fun pop() { stack = stack.dropLast(1) }
@@ -175,10 +207,27 @@ private fun App(prefs: Prefs, settings: Settings, openRequest: androidx.compose.
         )
         null -> Scaffold(
             topBar = {
+                Column {
+                val rel = upd.release
+                if (rel != null && Updater.isNewer(rel) && !upd.bannerHidden) {
+                    Row(
+                        Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.primaryContainer).statusBarsPadding()
+                            .clickable { install() }.padding(horizontal = 16.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            upd.progress?.let { "Preuzimam… ${(it * 100).toInt()}%" } ?: upd.msg ?: "Nova verzija 1.0.${rel.build} — dodirni za instalaciju",
+                            Modifier.weight(1f), color = MaterialTheme.colorScheme.onPrimaryContainer, style = MaterialTheme.typography.labelLarge,
+                        )
+                        Text("Kasnije", Modifier.clickable { upd.bannerHidden = true }.padding(start = 12.dp), color = MaterialTheme.colorScheme.onPrimaryContainer, style = MaterialTheme.typography.labelLarge)
+                    }
+                }
                 TopAppBar(
+                    windowInsets = if (rel != null && Updater.isNewer(rel) && !upd.bannerHidden) androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0) else androidx.compose.material3.TopAppBarDefaults.windowInsets,
                     title = { Text(if (tab == 0) "Kravos Bas" else TABS[tab].title) },
                     actions = { IconButton(onClick = { showSettings = true }) { Icon(Icons.Filled.Settings, "Podešavanja") } },
                 )
+                }
             },
             bottomBar = {
                 NavigationBar {
@@ -203,11 +252,11 @@ private fun App(prefs: Prefs, settings: Settings, openRequest: androidx.compose.
         }
     } }
 
-    if (showSettings) SettingsDialog(prefs, settings) { showSettings = false }
+    if (showSettings) SettingsDialog(prefs, settings, upd, onCheck = { scope.launch { upd.msg = null; upd.release = Updater.latest(); if (upd.release == null) upd.msg = "Provera nije uspela (nema interneta?)" } }, onInstall = { install() }) { showSettings = false }
 }
 
 @Composable
-private fun SettingsDialog(prefs: Prefs, s: Settings, onDismiss: () -> Unit) {
+private fun SettingsDialog(prefs: Prefs, s: Settings, upd: UpdateUi, onCheck: () -> Unit, onInstall: () -> Unit, onDismiss: () -> Unit) {
     var confirmReset by remember { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -221,6 +270,22 @@ private fun SettingsDialog(prefs: Prefs, s: Settings, onDismiss: () -> Unit) {
                 ChipGroup(listOf(12, 15), s.maxFret, { "$it" }) { f -> prefs.update { it.copy(maxFret = f) } }
                 SwitchRow("Zvuk kad tapneš vrat", s.sound) { v -> prefs.update { it.copy(sound = v) } }
                 SwitchRow("Zvuk oktavu više (za zvučnik telefona)", s.octaveUp) { v -> prefs.update { it.copy(octaveUp = v) } }
+                Label("Verzija")
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val rel = upd.release
+                    Text(
+                        "1.0.${BuildConfig.BUILD_NUMBER}" + when {
+                            rel == null -> ""
+                            Updater.isNewer(rel) -> " · dostupna 1.0.${rel.build}"
+                            else -> " · najnovija"
+                        },
+                        Modifier.weight(1f),
+                    )
+                    if (rel != null && Updater.isNewer(rel)) TextButton(onClick = onInstall, enabled = upd.progress == null) { Text("Instaliraj") }
+                    else TextButton(onClick = onCheck) { Text("Proveri") }
+                }
+                upd.progress?.let { androidx.compose.material3.LinearProgressIndicator(progress = { it }, modifier = Modifier.fillMaxWidth()) }
+                upd.msg?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
                 TextButton(onClick = { if (confirmReset) { prefs.resetProgress(); confirmReset = false } else confirmReset = true }) {
                     Text(if (confirmReset) "Sigurno? Tapni opet" else "Resetuj napredak i statistiku", color = MaterialTheme.colorScheme.error)
                 }
