@@ -31,7 +31,7 @@ object Progressions {
         Progression(
             "Epski metal", Mode.MINOR,
             listOf(s(I, MIN, "i"), s(Interval.m6, MAJ, "VI"), s(Interval.m7, MAJ, "VII"), s(I, MIN, "i")),
-            "Najčešći metal/hard rock potez (Maiden, Manowar…). U E-molu: Em – C – D – Em. VI i VII stoje na b6 i b7 tonike — zapamti oblik: tonika, pa „2 praga niže na višoj žici“ i odmah iznad.",
+            "Najčešći metal/hard rock potez (Maiden, Manowar…). U E-molu: Em – C – D – Em. Oblik na jednoj žici: VI je 4 praga ispod tonike, VII 2 praga ispod (E na 12. → C na 8., D na 10.).",
         ),
         Progression(
             "Mol rok", Mode.MINOR,

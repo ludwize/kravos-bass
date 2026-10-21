@@ -144,7 +144,8 @@ private fun App(prefs: Prefs, settings: Settings, openRequest: androidx.compose.
     BackHandler(enabled = stack.isNotEmpty()) { pop() }
     BackHandler(enabled = stack.isEmpty() && tab != 0) { tab = 0 }
 
-    when (val top = stack.lastOrNull()) {
+    val top0 = stack.lastOrNull()
+    androidx.compose.runtime.key(top0, stack.size) { when (val top = top0) {
         is Overlay.LessonView -> {
             val l: Lesson = Lessons.byId(top.id) ?: return
             LessonDetail(
@@ -200,7 +201,7 @@ private fun App(prefs: Prefs, settings: Settings, openRequest: androidx.compose.
                 else -> JamScreen(pad)
             }
         }
-    }
+    } }
 
     if (showSettings) SettingsDialog(prefs, settings) { showSettings = false }
 }

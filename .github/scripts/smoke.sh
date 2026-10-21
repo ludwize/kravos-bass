@@ -40,20 +40,20 @@ shot 20-practice
 
 open quiz:NOTE_NAME
 shot 21-note-name
-tapf 150 700
+tapf 160 640
 shot 22-note-name-answered
 
 open quiz:INTERVAL_TAP
 shot 23-interval-tap
 # tap middle of the neck rows (neck sits in the upper half)
-for y in 330 370 410; do tapf 500 $y; done
+tapf 500 400
 shot 24-interval-answered
 
 open quiz:CHORD_TAP
 shot 25-chordtap
 open quiz:SAFE_NOTE
 shot 26-safe-note
-tapf 250 600
+tapf 250 560
 shot 27-safe-answered
 open quiz:KEY_FUNCTION
 shot 28-key-function

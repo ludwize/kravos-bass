@@ -111,7 +111,7 @@ object QuizGen {
             QuizKind.NOTE_NAME,
             "Koja je ovo nota? (${strName} žica, ${p.second}. prag)",
             listOf(BoardMarker(p.first, p.second, "?", style = MarkerStyle.QUESTION)),
-            Answer.Choice(names, opts.indexOf(pc), columns = if (c.naturalsOnly) 4 else 4),
+            Answer.Choice(names, opts.indexOf(pc), columns = if (c.naturalsOnly) 4 else 3),
             explainNote(p.first, p.second, c.n),
             listOf(midiAt(p)),
         )

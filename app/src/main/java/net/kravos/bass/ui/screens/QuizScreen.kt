@@ -214,7 +214,7 @@ fun QuizScreen(
                                 shape = MaterialTheme.shapes.medium,
                                 contentPadding = ButtonDefaults.ContentPadding,
                                 modifier = Modifier.weight(1f).height(if (cols == 1) 52.dp else 50.dp),
-                            ) { Text(opt, maxLines = 2, textAlign = TextAlign.Center) }
+                            ) { Text(opt, maxLines = if (cols == 1) 2 else 1, softWrap = cols == 1, textAlign = TextAlign.Center) }
                         }
                         repeat(cols - row.size) { Spacer(Modifier.weight(1f)) }
                     }

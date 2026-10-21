@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
@@ -56,13 +57,25 @@ fun Fretboard(
     rowHeight: Dp = 38.dp,
 ) {
     val measurer = rememberTextMeasurer()
+    val density = androidx.compose.ui.platform.LocalDensity.current
     BoxWithConstraints(modifier.fillMaxWidth()) {
         val nutW = 34.dp
-        val fretW = maxOf(34.dp, (maxWidth - nutW) / frets)
+        val fretW = maxOf(24.dp, (maxWidth - nutW) / frets)
         val totalW = nutW + fretW * frets
         val numbersH = 18.dp
         val height = rowHeight * 4 + numbersH
         val scroll = rememberScrollState()
+        val focus = markers.firstOrNull { it.style == MarkerStyle.QUESTION } ?: markers.firstOrNull { it.style == MarkerStyle.TARGET }
+            ?: markers.firstOrNull { it.label == "R" }
+        val viewW = maxWidth
+        LaunchedEffect(focus, totalW > viewW) {
+            if (focus != null && totalW > viewW) {
+                with(density) {
+                    val x = (nutW + fretW * focus.fret - fretW / 2).toPx() - viewW.toPx() / 2
+                    scroll.animateScrollTo(x.toInt().coerceIn(0, scroll.maxValue.coerceAtLeast(0)))
+                }
+            }
+        }
         val labelStyle = remember { TextStyle(fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White) }
         val smallStyle = remember { TextStyle(fontSize = 11.sp, color = Color(0xFF9A948C)) }
         val openStyle = remember { TextStyle(fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF6A5A4E)) }
@@ -145,7 +158,7 @@ fun Fretboard(
                         drawCircle(Color(0x33FFFFFF), radius = r * 0.85f, center = c)
                     }
                     MarkerStyle.SOFT -> {
-                        drawCircle(col.copy(alpha = 0.28f), radius = r * 0.88f, center = c)
+                        drawCircle(col.copy(alpha = 0.45f), radius = r * 0.88f, center = c)
                         drawCircle(col.copy(alpha = 0.7f), radius = r * 0.88f, center = c, style = Stroke(2f))
                     }
                     MarkerStyle.TARGET -> {

@@ -47,7 +47,7 @@ import net.kravos.bass.ui.components.RoleLegend
 import net.kravos.bass.ui.components.SectionCard
 import net.kravos.bass.ui.components.Sound
 
-private enum class KeyView(val label: String) { SCALE("Lestvica"), PENTA("Pentatonika"), BLUES("Blues") }
+private enum class KeyView(val label: String) { SCALE("Lestvica"), PENTA("Penta"), BLUES("Blues") }
 
 @OptIn(ExperimentalLayoutApi::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable

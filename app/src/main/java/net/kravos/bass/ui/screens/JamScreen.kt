@@ -57,7 +57,7 @@ import net.kravos.bass.ui.components.RoleLegend
 import net.kravos.bass.ui.components.SectionCard
 import net.kravos.bass.ui.components.Sound
 
-enum class JamView(val label: String) { CHORD("Akord"), PENTA("+ pentatonika"), SCALE("+ lestvica") }
+enum class JamView(val label: String) { CHORD("Akord"), PENTA("+ penta"), SCALE("+ lestvica") }
 
 /** Jam state lives outside the screen so it keeps playing while you look at other tabs. */
 object Jam {
@@ -142,7 +142,7 @@ fun JamScreen(pad: PaddingValues) {
                         style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary,
                     )
                     Text(cur.name(n), style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Bold)
-                    Text(cur.tones.joinToString("  ") { "${it.first.short} ${it.second.name(n)}" }, style = MaterialTheme.typography.titleSmall)
+                    Text(cur.tones.joinToString("  ·  ") { "${it.first.short} ${it.second.name(n)}" }, style = MaterialTheme.typography.titleSmall)
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text("sledeći", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
