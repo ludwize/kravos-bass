@@ -14,8 +14,10 @@ sleep 8
 shot() { adb exec-out screencap -p > "$OUT/$1.png"; echo "shot $1" >> "$OUT/steps.txt"; }
 
 find_xy() {
-  adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
-  adb pull /sdcard/ui.xml "$OUT/ui.xml" >/dev/null 2>&1
+  adb shell rm -f /sdcard/ui.xml >/dev/null 2>&1
+  adb shell uiautomator dump /sdcard/ui.xml >> "$OUT/dump.txt" 2>&1
+  adb pull /sdcard/ui.xml "$OUT/ui.xml" >> "$OUT/dump.txt" 2>&1
+  cp "$OUT/ui.xml" "$OUT/last-ui.xml" 2>/dev/null
   python3 - "$1" "$OUT/ui.xml" <<'PY'
 import re, sys, xml.etree.ElementTree as ET
 want, path = sys.argv[1], sys.argv[2]
@@ -128,6 +130,6 @@ adb logcat -d > "$OUT/logcat.txt"
 grep -n -A 40 "FATAL EXCEPTION" "$OUT/logcat.txt" > "$OUT/crash.txt" || true
 grep -n -E "AndroidRuntime|net.kravos|AudioTrack" "$OUT/logcat.txt" | tail -300 > "$OUT/app-log.txt" || true
 if [ -s "$OUT/crash.txt" ]; then echo "CRASH" >> "$OUT/status.txt"; fi
-rm -f "$OUT/logcat.txt" "$OUT/ui.xml"
+rm -f "$OUT/logcat.txt"
 cat "$OUT/status.txt" "$OUT/steps.txt"
 exit 0

@@ -163,7 +163,7 @@ private fun App(prefs: Prefs, settings: Settings) {
                             selected = tab == i,
                             onClick = { tab = i },
                             icon = { Icon(t.icon, null) },
-                            label = { Text(t.title, maxLines = 1) },
+                            label = { Text(t.title, maxLines = 1, style = MaterialTheme.typography.labelSmall) },
                         )
                     }
                 }
