@@ -155,8 +155,15 @@ fun QuizScreen(
             return@Scaffold
         }
 
+        val scroll = rememberScrollState()
+        androidx.compose.runtime.LaunchedEffect(answered, index) {
+            if (answered) {
+                delay(250)
+                scroll.animateScrollTo(scroll.maxValue)
+            } else scroll.scrollTo(0)
+        }
         Column(
-            Modifier.padding(pad).fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp),
+            Modifier.padding(pad).fillMaxSize().verticalScroll(scroll).padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             LinearProgressIndicator(progress = { (index + if (answered) 1 else 0) / count.toFloat() }, modifier = Modifier.fillMaxWidth())
