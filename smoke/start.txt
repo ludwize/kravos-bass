@@ -2,6 +2,6 @@ Starting: Intent { cmp=net.kravos.bass/.ui.MainActivity }
 Status: ok
 LaunchState: COLD
 Activity: net.kravos.bass/.ui.MainActivity
-TotalTime: 3324
-WaitTime: 3332
+TotalTime: 3524
+WaitTime: 3582
 Complete
