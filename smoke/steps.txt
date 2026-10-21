@@ -1,0 +1,43 @@
+shot 01-lessons
+shot 02-lessons-scroll
+not found: Prirodne note na E i A žici
+shot 10-lesson1
+shot 11-lesson1-scroll
+shot 12-lesson1-scroll2
+not found: Proveri se (8 pitanja)
+shot 13-quiz
+not found: C
+shot 14-quiz-answered
+not found: Trozvuk: koren, terca, kvinta
+shot 15-lesson-chords
+shot 16-lesson-chords-scroll
+not found: Vežbe
+shot 20-practice
+not found: Intervali na vratu
+shot 21-interval-tap
+shot 22-interval-answered
+not found: Tonovi akorda na vratu
+shot 23-chordtap
+not found: Sigurna nota
+shot 24-safe-note
+not found: Akordi
+shot 30-chords
+not found: 7
+shot 31-chords-a7
+shot 32-chords-scroll
+not found: Tonalitet
+shot 40-key
+not found: Am
+shot 41-key-am
+shot 42-key-scroll
+shot 43-key-scroll2
+not found: Džem
+shot 50-jam
+not found: Sviraj
+shot 51-jam-playing
+shot 52-jam-playing2
+shot 53-jam-scroll
+not found: Stop
+shot 54-jam-stopped
+not found: Podešavanja
+shot 60-settings
