@@ -79,14 +79,23 @@ private sealed class Overlay {
 }
 
 class MainActivity : ComponentActivity() {
+    /** Deep-link style shortcut (used by the CI smoke test): tab:N, lesson:ID, quiz:KIND, jam:play. */
+    private val openRequest = mutableStateOf<String?>(null)
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        openRequest.value = intent.getStringExtra("open")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val prefs = Prefs.get(this)
+        openRequest.value = intent?.getStringExtra("open")
         setContent {
             val settings by prefs.settings.collectAsState()
             CompositionLocalProvider(LocalPrefs provides prefs, LocalSettings provides settings) {
-                BassTheme { App(prefs, settings) }
+                BassTheme { App(prefs, settings, openRequest) }
             }
         }
     }
@@ -105,7 +114,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun App(prefs: Prefs, settings: Settings) {
+private fun App(prefs: Prefs, settings: Settings, openRequest: androidx.compose.runtime.MutableState<String?>) {
     var tab by rememberSaveable { mutableIntStateOf(0) }
     var stack by remember { mutableStateOf(listOf<Overlay>()) }
     var showSettings by remember { mutableStateOf(false) }
@@ -116,6 +125,20 @@ private fun App(prefs: Prefs, settings: Settings) {
         Jam.load(key ?: Jam.key, progName)
         stack = emptyList()
         tab = 4
+    }
+
+    androidx.compose.runtime.LaunchedEffect(openRequest.value) {
+        val req = openRequest.value ?: return@LaunchedEffect
+        openRequest.value = null
+        val (what, arg) = req.split(':', limit = 2).let { it[0] to it.getOrElse(1) { "" } }
+        when (what) {
+            "tab" -> { stack = emptyList(); tab = arg.toIntOrNull()?.coerceIn(0, 4) ?: 0 }
+            "lesson" -> Lessons.byId(arg)?.let { stack = listOf(Overlay.LessonView(it.id)) }
+            "quiz" -> net.kravos.bass.music.QuizKind.entries.firstOrNull { it.name == arg }?.let {
+                stack = listOf(Overlay.Quiz(PracticeRequest(it.title, listOf(it), QuizCtx(settings.notation, settings.maxFret), 10)))
+            }
+            "jam" -> { stack = emptyList(); tab = 4; if (arg == "play" && !Jam.playing) Jam.start() }
+        }
     }
 
     BackHandler(enabled = stack.isNotEmpty()) { pop() }
