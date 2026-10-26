@@ -16,3 +16,9 @@ Lična Android aplikacija za učenje teorije na bas gitari — fokus na primeni:
 
 GitHub Actions builduje potpisan APK na svaki push na `main` (uz unit testove teorije) i kači ga na Releases.
 Potpisivanje: `signing/release.jks.enc`, CI treba repo secret `KP_SIGNING_PASS`.
+
+## Web izdanje
+
+Isti sadržaj (lekcije, vežbe, akordi, tonalitet, džem) kao statični sajt u `web/` — čist HTML/JS, bez build koraka.
+Objavljuje se na GitHub Pages (`.github/workflows/web.yml`) na svaki push u `web/`; posle objave se živi sajt slika u Chromiumu (desktop + telefon) i rezultat ide na granu `ci-logs/web`.
+Teorija je port `music/` paketa iz aplikacije (`web/theory.js`), proverena istim testovima (`node web/check/test.js`).

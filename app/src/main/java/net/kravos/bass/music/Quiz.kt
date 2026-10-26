@@ -124,7 +124,8 @@ object QuizGen {
             f == 12 -> "12. prag je oktava prazne žice."
             f > 12 -> "Prag $f = prag ${f - 12} oktavu više."
             f in listOf(3, 9) -> "Orijentir: tačka na ${f}. pragu."
-            f == 5 || f == 7 -> "Orijentir: ${f}. prag = nota prazne žice iznad${if (f == 7) " (oktava niže)" else ""}."
+            f == 5 -> "Orijentir: 5. prag = nota prazne žice iznad."
+            f == 7 -> "Orijentir: 7. prag = kvinta prazne žice (ista nota kao prazna žica ispod, oktavu više)."
             else -> {
                 val nearest = listOf(0, 3, 5, 7, 9, 12).minBy { kotlin.math.abs(it - f) }
                 "Od $nearest. praga (${pcName(Bass.pc(s, nearest), n)}) ${if (f > nearest) "+" else "−"}${kotlin.math.abs(f - nearest)} polustepen(a)."

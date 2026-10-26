@@ -1,0 +1,58 @@
+name: web
+
+# Publishes the web edition (static site in web/) to GitHub Pages, then screenshots the live site.
+on:
+  push:
+    branches: [main]
+    paths: ['web/**', '.github/workflows/web.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      url: ${{ steps.deploy.outputs.page_url }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Theory tests
+        run: node web/check/test.js
+      - name: Assemble site
+        run: |
+          mkdir -p site
+          cp web/index.html web/app.js web/theory.js web/audio.js site/
+          printf 'User-agent: *\nDisallow: /\n' > site/robots.txt
+          touch site/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
+  check:
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Screenshot the live site
+        run: |
+          npm install --no-save --silent playwright@1.56.0 && npx playwright install --with-deps chromium > /dev/null
+          mkdir -p webcheck && sleep 20
+          node web/check/shots.js "${{ needs.publish.outputs.url }}" webcheck || echo "check failed" >> webcheck/stats.txt
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/scripts/publish-log.sh web webcheck
