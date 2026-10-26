@@ -1,0 +1,44 @@
+$ dig +short CNAME bas.kravos.net
+ludwize.github.io.
+
+$ dig +short A bas.kravos.net
+ludwize.github.io.
+185.199.108.153
+185.199.109.153
+185.199.110.153
+185.199.111.153
+
+$ dig +short TXT _github-pages-challenge-ludwize.kravos.net
+"ec5ad72ff3ba8aa77268271342b77d"
+
+$ dig +short NS kravos.net
+ns1.dns-parking.com.
+ns2.dns-parking.com.
+
+$ curl -sI -m 20 http://bas.kravos.net | head -5
+HTTP/1.1 301 Moved Permanently
+Connection: keep-alive
+Content-Length: 162
+Server: GitHub.com
+Content-Type: text/html
+
+$ curl -sI -m 20 https://bas.kravos.net | head -5
+HTTP/2 200 
+server: GitHub.com
+content-type: text/html; charset=utf-8
+x-origin-cache: HIT
+last-modified: Mon, 26 Oct 2026 14:36:55 GMT
+
+$ echo | openssl s_client -connect bas.kravos.net:443 -servername bas.kravos.net 2>/dev/null | openssl x509 -noout -subject -issuer -dates
+subject=CN = bas.kravos.net
+issuer=C = US, O = Let's Encrypt, CN = YR2
+notBefore=Oct 26 14:20:11 2026 GMT
+notAfter=Jan 24 14:20:10 2027 GMT
+
+$ curl -sI -m 20 https://ludwize.github.io/kravos-bass/ | head -5
+HTTP/2 301 
+server: GitHub.com
+content-type: text/html
+location: https://bas.kravos.net/
+x-github-request-id: 65F0:3435AC:3959C4:4163D5:6ADF6FB2
+
