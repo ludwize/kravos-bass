@@ -44,7 +44,8 @@ jobs:
 
   check:
     needs: publish
-    runs-on: ubuntu-latest
+    # Playwright 1.56 can't install browser deps on newer runner images yet
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
