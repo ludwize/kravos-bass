@@ -3,7 +3,7 @@ name: build
 on:
   push:
     branches: [main]
-    paths-ignore: ['web/**', '.github/workflows/web.yml', '.github/probe/**', '.github/workflows/probe.yml']
+    paths-ignore: ['web/index.html', 'web/app.js', 'web/audio.js', 'web/theory.js', 'web/check/shots.js', '.github/workflows/web.yml', '.github/probe/**', '.github/workflows/probe.yml']
   workflow_dispatch:
 
 permissions:

@@ -253,7 +253,7 @@ main { padding: 26px 0 60px; min-height: 70vh; }
 input[type=range] { width: 100%; accent-color: var(--accent); }
 
 /* ---------- dialog ---------- */
-dialog { border: 1px solid var(--line); border-radius: 22px; background: var(--surface); color: var(--ink); padding: 0; width: min(460px, calc(100vw - 32px)); box-shadow: var(--shadow); }
+dialog { max-height: calc(100dvh - 32px); overflow: auto; border: 1px solid var(--line); border-radius: 22px; background: var(--surface); color: var(--ink); padding: 0; width: min(460px, calc(100vw - 32px)); box-shadow: var(--shadow); }
 dialog::backdrop { background: rgba(0, 0, 0, .5); }
 dialog .dh { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px 6px; }
 dialog .dh h2 { font-size: 22px; }
@@ -296,6 +296,7 @@ footer a:hover { color: var(--accent); }
 
 <script src="theory.js"></script>
 <script src="audio.js"></script>
+<script src="sync.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

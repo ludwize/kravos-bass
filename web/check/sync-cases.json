@@ -1,0 +1,18 @@
+[
+  {"name": "union of lessons from two devices",
+   "a": {"v":1,"reset":0,"lessons":{"neck1":{"d":1,"t":100}},"stats":{},"best":{"n":0,"t":0}},
+   "b": {"v":1,"reset":0,"lessons":{"neck2":{"d":1,"t":200}},"stats":{},"best":{"n":0,"t":0}},
+   "expect": {"v":1,"reset":0,"lessons":{"neck1":{"d":1,"t":100},"neck2":{"d":1,"t":200}},"stats":{},"best":{"n":0,"t":0}}},
+  {"name": "newer mark of the same lesson wins",
+   "a": {"v":1,"reset":0,"lessons":{"neck1":{"d":1,"t":100}},"stats":{},"best":{"n":0,"t":0}},
+   "b": {"v":1,"reset":0,"lessons":{"neck1":{"d":0,"t":300}},"stats":{},"best":{"n":0,"t":0}},
+   "expect": {"v":1,"reset":0,"lessons":{"neck1":{"d":0,"t":300}},"stats":{},"best":{"n":0,"t":0}}},
+  {"name": "stats are per device, newest copy of a device wins",
+   "a": {"v":1,"reset":0,"lessons":{},"stats":{"a-1":{"t":50,"k":{"NOTE_NAME":[1,2]}},"w-1":{"t":90,"k":{"PENTA":[3,3]}}},"best":{"n":2,"t":50}},
+   "b": {"v":1,"reset":0,"lessons":{},"stats":{"a-1":{"t":80,"k":{"NOTE_NAME":[4,6]}}},"best":{"n":5,"t":70}},
+   "expect": {"v":1,"reset":0,"lessons":{},"stats":{"a-1":{"t":80,"k":{"NOTE_NAME":[4,6]}},"w-1":{"t":90,"k":{"PENTA":[3,3]}}},"best":{"n":5,"t":70}}},
+  {"name": "reset drops everything older",
+   "a": {"v":1,"reset":0,"lessons":{"neck1":{"d":1,"t":100},"neck2":{"d":1,"t":600}},"stats":{"a-1":{"t":100,"k":{"NOTE_NAME":[1,2]}},"w-1":{"t":700,"k":{"PENTA":[1,1]}}},"best":{"n":9,"t":100}},
+   "b": {"v":1,"reset":500,"lessons":{},"stats":{},"best":{"n":0,"t":500}},
+   "expect": {"v":1,"reset":500,"lessons":{"neck2":{"d":1,"t":600}},"stats":{"w-1":{"t":700,"k":{"PENTA":[1,1]}}},"best":{"n":0,"t":500}}}
+]

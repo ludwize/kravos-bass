@@ -28,11 +28,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Theory tests
-        run: node web/check/test.js
+        run: node web/check/test.js && node web/check/sync-test.js
       - name: Assemble site
         run: |
           mkdir -p site
-          cp web/index.html web/app.js web/theory.js web/audio.js site/
+          cp web/index.html web/app.js web/theory.js web/audio.js web/sync.js site/
           printf 'User-agent: *\nDisallow: /\n' > site/robots.txt
           touch site/.nojekyll
       - uses: actions/configure-pages@v5

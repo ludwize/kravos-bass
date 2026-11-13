@@ -22,3 +22,10 @@ Potpisivanje: `signing/release.jks.enc`, CI treba repo secret `KP_SIGNING_PASS`.
 Isti sadržaj (lekcije, vežbe, akordi, tonalitet, džem) kao statični sajt u `web/` — čist HTML/JS, bez build koraka.
 Objavljuje se na GitHub Pages (`.github/workflows/web.yml`) na svaki push u `web/`; posle objave se živi sajt slika u Chromiumu (desktop + telefon) i rezultat ide na granu `ci-logs/web`.
 Teorija je port `music/` paketa iz aplikacije (`web/theory.js`), proverena istim testovima (`node web/check/test.js`).
+
+## Sinhronizacija napretka (telefon ↔ web)
+
+Urađene lekcije, statistika po vrsti pitanja i najduži niz čuvaju se u tajnom GitHub Gist-u korisnikovog naloga (`kravos-bas.json`).
+Treba klasičan token samo sa dozvolom `gist`; unosi se u Podešavanja → Sinhronizacija, na telefonu i na webu.
+Spajanje je bez konflikata: lekcija — najnovija oznaka pobeđuje; statistika — svaki uređaj ima svoje brojače, zbir je ukupno; reset briše sve starije od trenutka reseta.
+Ista pravila: `app/.../data/SyncDoc.kt` i `web/sync.js`, provereno zajedničkim slučajevima (`web/check/sync-cases.json`).

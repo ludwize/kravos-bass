@@ -14,8 +14,75 @@
   };
   const S = Object.assign({ n: "H", frets: 12, sound: true, octaveUp: true, theme: "system" }, store.get("settings", {}));
   const saveS = () => store.set("settings", S);
-  const PR = Object.assign({ done: [], stats: {}, best: 0 }, store.get("progress", {}));
-  const saveP = () => store.set("progress", PR);
+  // ---- progress: a sync document (web/sync.js), shared with the Android app through the user's GitHub Gist
+  const SY = window.KBSync;
+  const DEV = store.get("deviceId", null) || (() => { const id = "w-" + Math.random().toString(16).slice(2, 10); store.set("deviceId", id); return id; })();
+  let DOC = (() => {
+    const saved = store.get("syncdoc", null);
+    if (saved) return SY.fromJson(saved);
+    const old = store.get("progress", null), now = Date.now(), d = SY.empty();
+    if (old) {
+      (old.done || []).forEach((id) => (d.lessons[id] = { done: true, t: now }));
+      if (old.stats && Object.keys(old.stats).length) d.stats[DEV] = { t: now, k: old.stats };
+      if (old.best) { d.best = old.best; d.bestT = now; }
+    }
+    store.set("syncdoc", SY.toJson(d));
+    return d;
+  })();
+  let PR = SY.progress(DOC);
+  function setDoc(d, fromSync = false) {
+    if (SY.same(d, DOC)) return;
+    DOC = d;
+    store.set("syncdoc", SY.toJson(d));
+    PR = SY.progress(d);
+    if (!fromSync) scheduleSync();
+    else refreshIfIdle();
+  }
+  const change = (f) => setDoc(f(DOC));
+
+  const SYNC = { token: store.get("ghToken", null), gist: store.get("gistId", null), busy: false, lastOk: store.get("syncOk", 0), error: null, timer: 0, listeners: new Set() };
+  const syncChanged = () => SYNC.listeners.forEach((f) => f());
+  function scheduleSync() {
+    if (!SYNC.token) return;
+    clearTimeout(SYNC.timer);
+    SYNC.timer = setTimeout(syncNow, 2500);
+  }
+  async function syncNow() {
+    if (!SYNC.token || SYNC.busy) return;
+    SYNC.busy = true; SYNC.error = null; syncChanged();
+    try {
+      const { id, merged } = await SY.syncOnce(SYNC.token, SYNC.gist, () => DOC);
+      SYNC.gist = id; store.set("gistId", id);
+      const now = SY.merge(DOC, merged);
+      setDoc(now, true);
+      if (!SY.same(now, merged)) scheduleSync();
+      SYNC.lastOk = Date.now(); store.set("syncOk", SYNC.lastOk);
+    } catch (e) {
+      SYNC.error = e instanceof SY.SyncError ? e.message : "Nema veze sa GitHub-om.";
+    }
+    SYNC.busy = false; syncChanged();
+  }
+  function syncConnect(token) {
+    SYNC.token = token.trim(); SYNC.gist = null;
+    store.set("ghToken", SYNC.token); store.set("gistId", null);
+    syncNow();
+  }
+  function syncDisconnect() {
+    SYNC.token = null; SYNC.gist = null; SYNC.lastOk = 0; SYNC.error = null;
+    ["ghToken", "gistId", "syncOk"].forEach((k) => { try { localStorage.removeItem("kb." + k); } catch {} });
+    syncChanged();
+  }
+  /** Synced progress arrived: redraw pages that show it, but never interrupt a running quiz or the jam. */
+  function refreshIfIdle() {
+    const hsh = location.hash;
+    if (/^#\/(lekcije|vezbe)?$/.test(hsh) || hsh === "" || /^#\/lekcija\/[^/]+$/.test(hsh)) {
+      const y = window.scrollY; route(); window.scrollTo(0, y);
+    }
+  }
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") syncNow(); });
+  window.addEventListener("focus", () => syncNow());
+  // while the page is open and visible, pick up progress from the phone every minute
+  setInterval(() => { if (document.visibilityState === "visible") syncNow(); }, 60000);
   const PX = Object.assign({ frets: 12, count: 10, naturals: false }, store.get("practice", {}));
   const saveX = () => store.set("practice", PX);
 
@@ -270,7 +337,7 @@
     quiz({
       title: l.title, back: `#/lekcija/${l.id}`, kinds: l.quiz, count: 8, pass: 75,
       ctx: { n: S.n, maxFret: l.maxFret, naturals: l.naturals, strings: l.strings },
-      onDone: (right, total) => { if ((right * 100) / total >= 75 && !PR.done.includes(l.id)) { PR.done.push(l.id); saveP(); } },
+      onDone: (right, total) => { if ((right * 100) / total >= 75 && !PR.done.includes(l.id)) change((d) => SY.withLesson(d, l.id, true, Date.now())); },
     });
   }
 
@@ -283,10 +350,9 @@
     let neck = null;
 
     const record = (ok) => {
-      const st = PR.stats[q.kind] || [0, 0];
-      PR.stats[q.kind] = [st[0] + (ok ? 1 : 0), st[1] + 1];
-      if (ok) { right++; streak++; PR.best = Math.max(PR.best, streak); } else streak = 0;
-      saveP();
+      if (ok) { right++; streak++; } else streak = 0;
+      const now = Date.now();
+      change((d) => SY.withStreak(SY.withAnswer(d, DEV, q.kind, ok, now), streak, now));
     };
 
     function next() {
@@ -695,7 +761,7 @@
         <div><div class="label" style="margin-bottom:8px">Pragova na vratu</div><div class="seg" id="sfr"><button class="${S.frets === 12 ? "on" : ""}">12</button><button class="${S.frets === 15 ? "on" : ""}">15</button></div></div>
         ${sw("ssnd", "Zvuk kad klikneš vrat", S.sound)}
         ${sw("soct", "Zvuk oktavu više (za male zvučnike)", S.octaveUp)}
-        <div class="dim small">Napredak i statistika se čuvaju u ovom pregledaču (nisu povezani sa Android aplikacijom).</div>
+        <div id="ssync"></div>
         <button class="danger" id="sreset">Resetuj napredak i statistiku</button>
         <a class="btn ghost block" href="https://github.com/ludwize/kravos-bass/releases/latest" target="_blank" rel="noopener">Preuzmi Android aplikaciju (APK)</a>
       </div>`;
@@ -710,8 +776,31 @@
     $("#soct", dlg).onchange = (e) => { S.octaveUp = e.target.checked; saveS(); };
     $("#sreset", dlg).onclick = (e) => {
       if (!confirm) { confirm = true; e.target.textContent = "Sigurno? Klikni opet"; return; }
-      PR.done = []; PR.stats = {}; PR.best = 0; saveP(); e.target.textContent = "Napredak obrisan"; route();
+      change(() => Object.assign(SY.empty(), { reset: Date.now() })); e.target.textContent = "Napredak obrisan"; route();
     };
+    const box = $("#ssync", dlg);
+    const drawSync = () => {
+      if (!dlg.open && box.isConnected === false) return;
+      if (!SYNC.token) {
+        box.innerHTML = `<div class="label" style="margin-bottom:8px">Sinhronizacija (web ↔ telefon)</div>
+          <p class="dim small" style="margin:0 0 10px">Napredak se čuva u tajnom Gist-u na tvom GitHub nalogu. Napravi token samo sa dozvolom „gist“ i nalepi ga ovde i u Android aplikaciji (Podešavanja → Sinhronizacija).</p>
+          <a class="btn soft block" href="${SY.TOKEN_URL}" target="_blank" rel="noopener">1. Napravi token na GitHub-u</a>
+          <input id="stok" type="password" autocomplete="off" spellcheck="false" placeholder="2. Nalepi token (ghp_…)" style="width:100%;margin-top:10px;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);font:inherit">
+          <button class="btn block" id="scon" style="margin-top:10px">3. Poveži</button>`;
+        $("#scon", box).onclick = () => { const t = $("#stok", box).value; if (t.trim().length > 20) syncConnect(t); };
+      } else {
+        const when = SYNC.lastOk ? new Date(SYNC.lastOk).toLocaleString("sr-Latn-RS", { day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
+        const msg = SYNC.busy ? "Sinhronizujem…" : SYNC.error ? "Greška: " + esc(SYNC.error) : when ? "Povezano · poslednja sinhronizacija " + esc(when) : "Povezano";
+        box.innerHTML = `<div class="label" style="margin-bottom:8px">Sinhronizacija (web ↔ telefon)</div>
+          <div class="small" style="color:${SYNC.error ? "var(--bad)" : "var(--dim)"}">${msg}</div>
+          <div class="row" style="margin-top:8px"><button class="btn soft" id="snow" ${SYNC.busy ? "disabled" : ""}>Sinhronizuj sada</button><button class="danger" id="soff">Prekini vezu</button></div>`;
+        $("#snow", box).onclick = syncNow;
+        $("#soff", box).onclick = syncDisconnect;
+      }
+    };
+    drawSync();
+    SYNC.listeners.add(drawSync);
+    dlg.addEventListener("close", () => SYNC.listeners.delete(drawSync), { once: true });
     $("#dx", dlg).onclick = () => dlg.close();
     dlg.showModal();
   }
@@ -720,4 +809,5 @@
 
   applyTheme();
   route();
+  syncNow();
 })();

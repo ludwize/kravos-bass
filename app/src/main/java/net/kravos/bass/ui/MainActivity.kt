@@ -48,6 +48,7 @@ import net.kravos.bass.update.Updater
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.statusBarsPadding
 import net.kravos.bass.data.Prefs
@@ -118,6 +119,7 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         AudioEngine.start()
+        Prefs.get(this).syncNow()
     }
 
     override fun onStop() {
@@ -263,7 +265,7 @@ private fun SettingsDialog(prefs: Prefs, s: Settings, upd: UpdateUi, onCheck: ()
         confirmButton = { TextButton(onClick = onDismiss) { Text("Gotovo") } },
         title = { Text("Podešavanja") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Label("Nazivi nota")
                 ChipGroup(Notation.entries, s.notation, { if (it == Notation.H) "H i B (naše)" else "B i Bb (engleske)" }) { n -> prefs.update { it.copy(notation = n) } }
                 Label("Pragova na vratu")
@@ -286,12 +288,55 @@ private fun SettingsDialog(prefs: Prefs, s: Settings, upd: UpdateUi, onCheck: ()
                 }
                 upd.progress?.let { androidx.compose.material3.LinearProgressIndicator(progress = { it }, modifier = Modifier.fillMaxWidth()) }
                 upd.msg?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+                SyncSection(prefs)
                 TextButton(onClick = { if (confirmReset) { prefs.resetProgress(); confirmReset = false } else confirmReset = true }) {
                     Text(if (confirmReset) "Sigurno? Tapni opet" else "Resetuj napredak i statistiku", color = MaterialTheme.colorScheme.error)
                 }
             }
         },
     )
+}
+
+@Composable
+private fun SyncSection(prefs: Prefs) {
+    val st by prefs.sync.collectAsState()
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    var token by remember { mutableStateOf("") }
+    Label("Sinhronizacija (telefon ↔ web)")
+    if (!st.connected) {
+        Text(
+            "Napredak se čuva u tajnom Gist-u na tvom GitHub nalogu. Napravi token samo sa dozvolom „gist“ i nalepi ga ovde i na bas.kravos.net.",
+            style = MaterialTheme.typography.bodySmall,
+        )
+        TextButton(onClick = {
+            ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(net.kravos.bass.data.GistSync.TOKEN_URL)))
+        }) { Text("1. Napravi token na GitHub-u") }
+        androidx.compose.material3.OutlinedTextField(
+            value = token,
+            onValueChange = { token = it },
+            label = { Text("2. Nalepi token (ghp_…)") },
+            singleLine = true,
+            visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth(),
+        )
+        TextButton(onClick = { prefs.connect(token) }, enabled = token.trim().length > 20) { Text("3. Poveži") }
+    } else {
+        val fmt = remember { java.text.SimpleDateFormat("d.M. HH:mm", java.util.Locale.ROOT) }
+        Text(
+            when {
+                st.busy -> "Sinhronizujem…"
+                st.error != null -> "Greška: ${st.error}"
+                st.lastOk > 0 -> "Povezano · poslednja sinhronizacija ${fmt.format(java.util.Date(st.lastOk))}"
+                else -> "Povezano"
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = if (st.error != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Row {
+            TextButton(onClick = { prefs.syncNow() }, enabled = !st.busy) { Text("Sinhronizuj sada") }
+            TextButton(onClick = { prefs.disconnect() }) { Text("Prekini vezu") }
+        }
+    }
 }
 
 @Composable
